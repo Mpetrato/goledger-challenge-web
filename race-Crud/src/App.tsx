@@ -1,23 +1,21 @@
-import axios from "axios"
-import { useEffect } from "react"
-
+import * as C from './AppStyles'
+import { Header } from "./components/Header"
+import { AppRoutes } from './routes'
+import { Link } from 'react-router-dom'
+ 
 export const App = () => {
   
-  useEffect(() => {
-
-
-    axios.post('http://ec2-100-25-136-128.compute-1.amazonaws.com/api/query/readAsset', {
-      "key": {
-        "@assetType": "car",
-        "id": 111
-      }
-    })
-    .then((response) => {
-      console.log(response.data)
-    })
-  }, [])
-  
   return (
-    <div>....</div>
+    <>
+      <Header />
+      <C.Section>
+        <C.Container>
+          <Link to={'/cars'}>Cars</Link>
+          <Link to={'/drivers'}>Drivers</Link>
+          <Link to={'/events'}>Events</Link>
+          <AppRoutes />
+        </C.Container>
+      </C.Section>
+    </>
   )
 }
