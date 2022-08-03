@@ -1,42 +1,44 @@
 import { useContext, useEffect, useState } from 'react'
-import { EventModal } from '../../components/EventModal'
-import { eventListContext } from '../../context/eventListContext'
+import { TeamModal } from '../../components/TeamModal'
+import { teamListContext } from '../../context/teamListContext'
 import { axiosService } from '../../services/axiosService'
-import { TEvent } from '../../types'
+import { TTeam } from '../../types'
 import * as C from './styles'
 
-export const EventPage = () => {
-    const { eventList, setEventList, setUpdatedEvent, updatedEvent} = useContext(eventListContext)
- 
-    const [isOpenModal, setIsOpenModal] = useState(false)
-    const [newState, setNewSate] = useState<TEvent[]>(eventList)
+export const TeamPage = () => {
 
+    const { teamList, setUpdatedTeam} = useContext(teamListContext)
+
+    const [isOpenModal, setIsOpenModal] = useState(false)
+    const [newState, setNewSate] = useState<TTeam[]>(teamList)
 
 
     useEffect(() => {
-        setNewSate(eventList)
-    }, [eventList])
+        setNewSate(teamList)
+    }, [teamList])
 
     const openModal = () => {
         setIsOpenModal(true)
+        console.log(teamList)
     }
 
     const closeModal = () => {
         setIsOpenModal(false)
     }
 
-    const updateDriver = async (item: TEvent) => {
+    const updateDriver = async (item: TTeam) => {
         setIsOpenModal(true)
-        setUpdatedEvent(item)
+        setUpdatedTeam(item)
     }
 
-    const deleteEvent = async (key: number) => {
-        if(window.confirm('Would you like to erase the event?')) {
-            const response = await axiosService.deleteEvent(key)
-            setNewSate(newState.filter((item) => item.name !== response.name))
+    const deleteTeam = async (key: number) => {
+        if(window.confirm('Would you like to erase the car?')) {
+            const response = await axiosService.deleteTeam(key)
+            setNewSate(newState.filter((car) => car.id !== response.id))
             console.log(response)
         }
     }
+
 
     return (
         <C.Container>
@@ -45,25 +47,19 @@ export const EventPage = () => {
                     <tr>
                         <C.TableTh>Type</C.TableTh>
                         <C.TableTh>Name</C.TableTh>
-                        <C.TableTh>Date</C.TableTh>
-                        <C.TableTh>Prize</C.TableTh>
-                        <C.TableTh>Winner</C.TableTh>
                         <C.TableTh>Action</C.TableTh>
                     </tr>
                 </thead>
                 <tbody>
-                {eventList.map((item, index) => (
-                            <C.TableTr key={item.name}>
-                                <C.TableTd>event</C.TableTd>
+                {newState.map((item, index) => (
+                            <C.TableTr key={item.id}>
+                                <C.TableTd>{item['@assetType']}</C.TableTd>
                                 <C.TableTd>{item.name}</C.TableTd>
-                                <C.TableTd>{item.date.toString()}</C.TableTd>
-                                <C.TableTd>{item.prize}</C.TableTd>
-                                <C.TableTd>{item.winner['@key']}</C.TableTd>
                                 <C.TableTd>
                                     <C.Buttons primary onClick={() => updateDriver(item)}>
                                         Edit
                                     </C.Buttons>
-                                    <C.Buttons onClick={(e) => deleteEvent(+item['@key'])}>
+                                    <C.Buttons onClick={(e) => deleteTeam(item.id)}>
                                         Delete
                                     </C.Buttons>
                                 </C.TableTd>
@@ -76,7 +72,7 @@ export const EventPage = () => {
             >
                 Register a Driver</C.RegisterButton>
             <C.WrapperModal active={isOpenModal}>
-                    <EventModal closeModal={closeModal}/>
+                    <TeamModal closeModal={closeModal}/>
             </C.WrapperModal>
         </C.Container>
     )

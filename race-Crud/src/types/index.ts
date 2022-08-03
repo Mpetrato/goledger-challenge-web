@@ -21,4 +21,14 @@ export type TDriver = {
 export type TTeam = {
     '@assetType': string;
     '@key': string
+    id: number;
+    name: string;
+}
+
+export type TEvent = {
+    "@key": string;
+    name: string;
+    date: Date;
+    prize: number;
+    winner: TTeam;
 }

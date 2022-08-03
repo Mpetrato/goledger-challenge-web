@@ -12,6 +12,7 @@ export const App = () => {
         <C.Container>
           <Link to={'/cars'}>Cars</Link>
           <Link to={'/drivers'}>Drivers</Link>
+          <Link to={'/teams'}>Teams</Link>
           <Link to={'/events'}>Events</Link>
           <AppRoutes />
         </C.Container>

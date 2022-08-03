@@ -1,32 +1,42 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
+import { CarModal } from '../../components/CarModal'
+import { CarListContext } from '../../context/carListContext'
 import { axiosService } from '../../services/axiosService'
 import { TCar } from '../../types'
 import * as C from './styles'
 
 export const CarPage = () => {
+    const {carList, driveNameList, isLoading, setUpdatedCar} = useContext(CarListContext)
 
-    const [carList, setCarList] = useState<TCar[]>([] as TCar[]);
-    const [driveNameList, setDriveNameList] = useState<string[]>([])
-    const [isLoading, setIsLoading] = useState(true)
-    
-    const getCarInfo = async () => {
-        const response = await axiosService.getCar()
-        setCarList(response) 
-        await driveName(response)
-        setIsLoading(false)
-    }
-
-    const driveName = async (carListDrive: TCar[]) => {
-        for(let car of carListDrive) {
-            const response = await axiosService.getDriverName(car.driver['@key'])
-            setDriveNameList(currentList => [...currentList, response.name === undefined ? 'Driver not found' : response.name])
-        }
-    }
-
+    const [isOpenModal, setIsOpenModal] = useState(false)
+    const [newState, setNewSate] = useState<TCar[]>(carList)
 
     useEffect(() => {
-        getCarInfo();
-    }, [])
+        setNewSate(carList)
+    }, [carList])
+    
+
+
+    const openModal = () => {
+        setIsOpenModal(true)
+    }
+
+    const closeModal = () => {
+        setIsOpenModal(false)
+    }
+
+    const deleteCar = async (key: number) => {
+        if(window.confirm('Would you like to erase the car?')) {
+            const response = await axiosService.deleteCar(key)
+            setNewSate(newState.filter((car) => car.id !== response.id))
+            console.log(response)
+        }
+    }
+    
+    const updateCar = async (item: TCar) => {
+        setIsOpenModal(true)
+        setUpdatedCar(item)
+    }
 
     return (
         <C.Container>
@@ -45,20 +55,31 @@ export const CarPage = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {carList.map((item, index) => (
+                        {newState.map((item, index) => (
                             <C.TableTr key={item.id}>
                                 <C.TableTd>{item['@assetType']}</C.TableTd>
                                 <C.TableTd>{item.model}</C.TableTd>
-                                <C.TableTd>{driveNameList[index]}</C.TableTd>
+                                <C.TableTd>{driveNameList[index] ? driveNameList[index] : 'Driver not found'}</C.TableTd>
                                 <C.TableTd>
-                                    <button>Apagar</button>
-                                    <button>Editar</button>
+                                    <C.Buttons primary onClick={() => updateCar(item)}>
+                                        Edit
+                                    </C.Buttons>
+                                    <C.Buttons onClick={() => deleteCar(item.id)}>
+                                        Delete
+                                    </C.Buttons>
                                 </C.TableTd>
                             </C.TableTr>
                         ))}
                     </tbody>
                 </C.Table>
-                <button>Register a Car</button>
+                <C.RegisterButton
+                    onClick={openModal}
+                >
+                    Register a Car
+                </C.RegisterButton>
+                <C.WrapperModal active={isOpenModal}>
+                    <CarModal closeModal={closeModal}/>
+                </C.WrapperModal>
                 </>
             )}
         </C.Container>
